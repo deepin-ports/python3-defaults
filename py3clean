@@ -24,7 +24,8 @@
 import logging
 import optparse
 import sys
-from glob import glob
+# glob1() is not in the public documentation, UTSL.
+from glob import glob1
 from os import environ, remove, rmdir
 from os.path import dirname, basename, exists, join, splitext
 sys.path.insert(1, '/usr/share/python3/')
@@ -97,12 +98,17 @@ def destroyer(magic_tag=None):  # ;-)
         def find_files_to_remove(pyfile):
             directory = join(dirname(pyfile), '__pycache__')
             fname = splitext(basename(pyfile))[0]
-            for fn in glob("%s.*" % fname, root_dir=directory):
+            for fn in glob1(directory, "%s.*" % fname):
                 yield join(directory, fn)
             # remove "classic" .pyc files as well
             for filename in ("%sc" % pyfile, "%so" % pyfile):
                 if exists(filename):
                     yield filename
+            # workaround for http://bugs.python.org/issue22966
+            if '.' in fname:
+                sane_fname = join(dirname(pyfile), fname.split('.', 1)[0])
+                for fn in find_files_to_remove(sane_fname):
+                    yield join(directory, fn)
     elif magic_tag is False:
 
         # remove 3.1's .pyc files only
@@ -116,31 +122,37 @@ def destroyer(magic_tag=None):  # ;-)
         def find_files_to_remove(pyfile):  # NOQA
             directory = join(dirname(pyfile), '__pycache__')
             fname = splitext(basename(pyfile))[0]
-            for fn in glob("%s.%s.py[co]" % (fname, magic_tag), root_dir=directory):
+            for fn in glob1(directory, "%s.%s.py[co]" % (fname, magic_tag)):
                 yield join(directory, fn)
+            # workaround for http://bugs.python.org/issue22966
+            if '.' in fname:
+                sane_fname = join(dirname(pyfile), fname.split('.', 1)[0])
+                for fn in find_files_to_remove(sane_fname):
+                    yield join(directory, fn)
+
+    def myremove(fname):
+        remove(fname)
+        directory = dirname(fname)
+        # remove __pycache__ directory if it's empty
+        if directory.endswith('__pycache__'):
+            try:
+                rmdir(directory)
+            except Exception:
+                pass
 
     counter = 0
-    pycache_directories = set()
     try:
         while True:
             pyfile = (yield)
             for filename in find_files_to_remove(pyfile):
                 try:
-                    remove(filename)
+                    myremove(filename)
                     counter += 1
                 except (IOError, OSError) as e:
                     log.error('cannot remove %s', filename)
                     log.debug(e)
-
-            # remove __pycache__ directory if it's empty
-            pycache_directories.add(join(dirname(pyfile), '__pycache__'))
     except GeneratorExit:
         log.info("removed files: %s", counter)
-        for directory in pycache_directories:
-            try:
-                rmdir(directory)
-            except Exception:
-                pass
 
 
 def main():

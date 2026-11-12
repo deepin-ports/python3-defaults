@@ -89,32 +89,6 @@ environment, instead of :file:`/usr`.
 Module Package Names
 --------------------
 
-Source Package
-^^^^^^^^^^^^^^
-
-The source package name is the ``Source`` field in the first paragraph
-of :file:`debian/control`.
-
-If a newly-packaged upstream project primarily provides public Python modules,
-then its Debian source package should have a ``python-`` prefix in its name
-(for example ``keyring`` is provided in the source package ``python-keyring``),
-unless its upstream name already indicates that it is a Python module
-(for example ``dbus-python``, ``pygobject`` and ``tap.py`` do not need
-a ``python-`` prefix)
-or is sufficiently distinctive and well-known to avoid collisions with other
-packaging ecosystems.
-The source package name may be based on either the upstream name
-(for example ``pyxdg``) or the main module name (for example ``python-xdg``),
-if they are different.
-Projects that are already included in Debian do not need to be renamed to
-match this recommendation.
-
-Module Binary Package
-^^^^^^^^^^^^^^^^^^^^^
-
-The binary package name is the ``Package`` field in the second or subsequent
-paragraphs of :file:`debian/control`.
-
 Public Python modules must be packaged separately by major Python
 version, to preserve run time separation between Python 2 and Python 3.
 
@@ -123,19 +97,13 @@ package name prefixed with ``python3-``.
 It is recommended to use this prefix for all packages with public
 modules as they may be used by other packages in the future.
 
-Python 2 modules are no longer included in Debian,
-but in the past they used a ``python-`` prefix for their binary
-package names,
-allowing Python 2 and Python 3 modules to be distinguished.
-
 The binary package for module :samp:`{foo}` should preferably be named
 :samp:`python3-{foo}`, if the module name allows.
 This is not required if the binary package installs multiple modules, in
 which case the maintainer shall choose the name of the module which best
 represents the package.
 
-For the purposes of package naming, the name that is used for a module's
-binary package
+For the purposes of package naming, the name that is used for a module
 is the name that can be used with ``import``, which is not necessarily
 the same as the name used in setuptools ``PKG-INFO`` and ``.egg-info``
 files and directories.
@@ -179,78 +147,11 @@ general purpose Python modules.
 Debian maintainers are encouraged to work with their upstreams to
 support consistent use of this approach.
 
-Additional Binary Packages
-^^^^^^^^^^^^^^^^^^^^^^^^^^
-
 If the documentation for a module :samp:`{foo}` provided in
 :samp:`python3-{foo}` is large enough that a separate binary package for
 documentation is desired, then the documentation package should
 preferably be named :samp:`python-{foo}-doc` (and in particular, not
 :samp:`python3-{foo}-doc`).
-
-Similarly,
-if a module :samp:`{foo}` requires additional data files that would be
-shared between different major versions of Python,
-or if it provides example programs or automated or manual tests,
-then those may be packaged as
-:samp:`python-{foo}-common`,
-:samp:`python-{foo}-data`,
-:samp:`python-{foo}-examples`,
-:samp:`python-{foo}-tests`
-or a similar name.
-
-Examples
-^^^^^^^^
-
-The upstream project named ``build`` provides a module that can be
-imported with
-
-.. code-block:: python
-
-    import build
-
-Its upstream name and its main module name are both ``build``,
-but that name is too generic to avoid naming collisions outside the Python
-ecosystem,
-so its source package is named ``python-build`` instead.
-The binary package containing the actual module for Python 3 is
-``python3-build``.
-It also provides documentation in a separate binary package.
-As a result its :file:`debian/control` file looks like this::
-
-    Source: python-build
-    ...
-
-    Package: python3-build
-    ...
-
-    Package: python-build-doc
-    ...
-
-The upstream project named ``pyxdg`` provides a module that can be
-imported with
-
-.. code-block:: python
-
-    import xdg
-
-Its upstream name is ``pyxdg`` and its main module name is ``xdg``.
-Its source package is named ``pyxdg``,
-matching its upstream name.
-The binary package containing the actual module for Python 3 is
-``python3-xdg``,
-matching the name that a Python programmer can ``import``.
-It also provides documentation in a separate binary package.
-As a result its :file:`debian/control` file looks like this::
-
-    Source: pyxdg
-    ...
-
-    Package: python3-xdg
-    ...
-
-    Package: python-pyxdg-doc
-    ...
 
 Specifying Supported Versions
 -----------------------------

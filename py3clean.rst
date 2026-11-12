@@ -19,7 +19,7 @@ OPTIONS
 
 -h, --help	show this help message and exit
 
--v, --verbose	turn verbose mode on
+-v, --verbose	turn verbose more one
 
 -q, --quiet	be quiet
 

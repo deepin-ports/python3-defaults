@@ -171,6 +171,7 @@ def py_compile(version, optimize, workers):
 
 def compile(files, versions, force, optimize, e_patterns=None):
     global STDINS, WORKERS
+    os.unsetenv('PYTHONPYCACHEPREFIX')
     # start Python interpreters that will handle byte compilation
     for version in versions:
         if version not in STDINS:
